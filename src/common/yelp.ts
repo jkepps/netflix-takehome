@@ -1,45 +1,40 @@
 import axios from 'axios'
-
-class YelpClient {
-  private BASE_URL = 'http://localhost:3000'
-
-  businessesSearch = async (params: SearchParams) => {
-    const url =
-      `${this.BASE_URL}/search?` +
-      new URLSearchParams(this.sanitizeParams(params))
-    const { data } = await axios.get<SearchResponse>(url)
-    return data.businesses
-  }
-
-  private sanitizeParams(params: object) {
-    return Object.entries(params).reduce(
-      (str, [key, value]) => str + `&${key}=${value}`,
-      '',
-    )
-  }
-}
-
-export const yelpClient = new YelpClient()
-
-export type Sort = 'best_match' | 'rating' | 'review_count' | 'distance'
+import { Business, SortBy } from '../types'
 
 interface SearchParams {
   term?: string
   location: string
   radius?: string
-  sort_by?: Sort
+  sort_by?: SortBy
   offset?: string
   limit?: string
-}
-
-export interface Business {
-  id: string
-  name: string
-  location: { display_address: string[] }
-  rating: number
-  distance: number
 }
 
 interface SearchResponse {
   businesses: Array<Business>
 }
+
+class YelpClient {
+  private BASE_URL = import.meta.env.VITE_SERVER_URL
+
+  async businesses(params: SearchParams) {
+    const url = `${this.BASE_URL}/yelpSearch?` + this.stringifyParams(params)
+    try {
+      const { data } = await axios.get<SearchResponse>(url)
+      return data.businesses
+    } catch (error) {
+      console.error(error)
+      throw error
+    }
+  }
+
+  private stringifyParams(params: object) {
+    const str = Object.entries(params).reduce(
+      (str, [key, value]) => str + `&${key}=${value}`,
+      '',
+    )
+    return new URLSearchParams(str)
+  }
+}
+
+export const yelpClient = new YelpClient()

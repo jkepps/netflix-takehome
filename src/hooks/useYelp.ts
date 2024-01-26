@@ -1,5 +1,7 @@
-import { useEffect, useState } from 'react'
-import { Business, Sort, yelpClient } from '../common/yelp'
+import { useState } from 'react'
+
+import { yelpClient } from '../common/yelp'
+import { Business, SortBy } from '../types'
 
 export const LOCATION_OPTIONS = [
   {
@@ -19,58 +21,54 @@ export const LOCATION_OPTIONS = [
   },
 ]
 export const PAGE_SIZE = 20
-export const SORT_OPTIONS: Array<{ label: string; value: Sort }> = [
+export const SORT_OPTIONS: Array<{ label: string; value: SortBy }> = [
   { label: 'Distance', value: 'distance' },
   { label: 'Best Match', value: 'best_match' },
   { label: 'Rating', value: 'rating' },
   { label: 'Review Count', value: 'review_count' },
 ]
-const RADIUS = '9656' // 6 miles in meters
+
+// 6 miles in meters
+const RADIUS = '9656'
 
 export const useYelp = () => {
-  const [location, setLocation] = useState(LOCATION_OPTIONS[0].address)
   const [results, setResults] = useState<Business[]>([])
-  const [offset, setOffset] = useState(0)
+  const [location, setLocation] = useState(LOCATION_OPTIONS[0].address)
   const [sortBy, setSortBy] = useState(SORT_OPTIONS[0].value)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
-  const search = async () => {
-    setOffset(0)
-    const result = await yelpClient.businessesSearch({
-      location,
-      term: 'boba shops',
-      offset: '0',
-      sort_by: sortBy,
-      radius: RADIUS,
-      limit: PAGE_SIZE.toString(),
-    })
-    setResults(result)
-  }
+  const search = async (loadMore = false) => {
+    if (loading) return
 
-  useEffect(() => {
-    if (offset === 0) return
-
-    const loadMore = async () => {
-      const result = await yelpClient.businessesSearch({
+    setLoading(true)
+    try {
+      const result = await yelpClient.businesses({
         location,
         term: 'boba shops',
+        offset: loadMore ? results.length.toString() : '0',
         sort_by: sortBy,
         radius: RADIUS,
         limit: PAGE_SIZE.toString(),
-        offset: offset.toString(),
       })
-      setResults((prev) => [...prev, ...result])
+      setResults((prev) => (loadMore ? [...prev, ...result] : result))
+    } catch (error) {
+      setError('Oops, something went wrong. Please try again.')
     }
+    setLoading(false)
+  }
 
-    loadMore()
-  }, [offset])
+  const clearError = () => setError('')
 
   return {
+    loading,
     location,
     results,
     search,
     setLocation,
-    setOffset,
     setSortBy,
     sortBy,
+    error,
+    clearError,
   }
 }
