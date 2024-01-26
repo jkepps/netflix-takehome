@@ -12,6 +12,7 @@ interface SearchParams {
 
 interface SearchResponse {
   businesses: Array<Business>
+  total: number
 }
 
 class YelpClient {
@@ -21,7 +22,7 @@ class YelpClient {
     const url = `${this.BASE_URL}/yelpSearch?` + this.stringifyParams(params)
     try {
       const { data } = await axios.get<SearchResponse>(url)
-      return data.businesses
+      return data
     } catch (error) {
       console.error(error)
       throw error

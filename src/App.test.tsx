@@ -43,17 +43,20 @@ describe('<App />', () => {
     })
 
     it('renders the results', async () => {
-      vi.mocked(yelpClient.businesses).mockResolvedValue([
-        {
-          id: '123',
-          name: 'Boba Guys',
-          rating: 4.5,
-          distance: 100,
-          location: {
-            display_address: ['429 Stockton St', 'Los Gatos, CA 12345'],
+      vi.mocked(yelpClient.businesses).mockResolvedValue({
+        total: 1,
+        businesses: [
+          {
+            id: '123',
+            name: 'Boba Guys',
+            rating: 4.5,
+            distance: 100,
+            location: {
+              display_address: ['429 Stockton St', 'Los Gatos, CA 12345'],
+            },
           },
-        },
-      ])
+        ],
+      })
       const user = userEvent.setup()
       render(<App />)
 
@@ -68,28 +71,34 @@ describe('<App />', () => {
 
     describe('when the user clicks "Load More"', () => {
       it('appends new results to the list', async () => {
-        vi.mocked(yelpClient.businesses).mockResolvedValueOnce([
-          {
-            id: '123',
-            name: 'Boba Guys',
-            rating: 4.5,
-            distance: 100,
-            location: {
-              display_address: ['429 Stockton St', 'Los Gatos, CA 12345'],
+        vi.mocked(yelpClient.businesses).mockResolvedValueOnce({
+          total: 2,
+          businesses: [
+            {
+              id: '123',
+              name: 'Boba Guys',
+              rating: 4.5,
+              distance: 100,
+              location: {
+                display_address: ['429 Stockton St', 'Los Gatos, CA 12345'],
+              },
             },
-          },
-        ])
-        vi.mocked(yelpClient.businesses).mockResolvedValueOnce([
-          {
-            id: '321',
-            name: 'Boba Gals',
-            rating: 5,
-            distance: 200,
-            location: {
-              display_address: ['432 Main St', 'Los Gatos, CA 12345'],
+          ],
+        })
+        vi.mocked(yelpClient.businesses).mockResolvedValueOnce({
+          total: 2,
+          businesses: [
+            {
+              id: '321',
+              name: 'Boba Gals',
+              rating: 5,
+              distance: 200,
+              location: {
+                display_address: ['432 Main St', 'Los Gatos, CA 12345'],
+              },
             },
-          },
-        ])
+          ],
+        })
 
         const user = userEvent.setup()
         render(<App />)

@@ -37,13 +37,14 @@ export const useYelp = () => {
   const [sortBy, setSortBy] = useState(SORT_OPTIONS[0].value)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [totalCount, setTotalCount] = useState<number | null>(null)
 
   const search = async (loadMore = false) => {
     if (loading) return
 
     setLoading(true)
     try {
-      const result = await yelpClient.businesses({
+      const { total, businesses } = await yelpClient.businesses({
         location,
         term: 'boba shops',
         offset: loadMore ? results.length.toString() : '0',
@@ -51,7 +52,8 @@ export const useYelp = () => {
         radius: RADIUS,
         limit: PAGE_SIZE.toString(),
       })
-      setResults((prev) => (loadMore ? [...prev, ...result] : result))
+      setResults((prev) => (loadMore ? [...prev, ...businesses] : businesses))
+      setTotalCount(total)
     } catch (error) {
       setError('Oops, something went wrong. Please try again.')
     }
@@ -61,6 +63,8 @@ export const useYelp = () => {
   const clearError = () => setError('')
 
   return {
+    clearError,
+    error,
     loading,
     location,
     results,
@@ -68,7 +72,7 @@ export const useYelp = () => {
     setLocation,
     setSortBy,
     sortBy,
-    error,
-    clearError,
+    hasMore: totalCount !== null && results.length < totalCount,
+    totalCount,
   }
 }

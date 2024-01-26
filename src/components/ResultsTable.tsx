@@ -7,7 +7,6 @@ import {
   TableCell,
   TableHead,
   TableRow,
-  Typography,
 } from '@mui/material'
 import { Business } from '../types'
 import { Rating } from './Rating'
@@ -16,9 +15,15 @@ interface Props {
   results: Business[]
   loading: boolean
   onLoadMore: () => void
+  hasMore: boolean
 }
 
-export const ResultsTable = ({ results, onLoadMore, loading }: Props) => {
+export const ResultsTable = ({
+  results,
+  onLoadMore,
+  loading,
+  hasMore,
+}: Props) => {
   const formatAddress = (address: string[]) => address.join(', ')
 
   // convert m to km and round to 2 decimal places
@@ -51,8 +56,8 @@ export const ResultsTable = ({ results, onLoadMore, loading }: Props) => {
         </TableBody>
       </Table>
       <Box sx={{ mt: 5, display: 'flex', justifyContent: 'center' }}>
-        {/* if results exist, display a "Load More" button, otherwise prompt the user to click "Search"  */}
-        {results.length ? (
+        {/* if results exist and there are more to fetch, display a "Load More" button */}
+        {!!results.length && hasMore && (
           <Box sx={{ position: 'absolute' }}>
             <Button
               onClick={onLoadMore}
@@ -76,10 +81,6 @@ export const ResultsTable = ({ results, onLoadMore, loading }: Props) => {
               />
             )}
           </Box>
-        ) : (
-          <Typography variant="subtitle1">
-            Click "Search" to get started
-          </Typography>
         )}
       </Box>
     </>

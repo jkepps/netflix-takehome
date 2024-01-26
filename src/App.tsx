@@ -16,6 +16,8 @@ export const App = () => {
     loading,
     error,
     clearError,
+    hasMore,
+    totalCount,
   } = useYelp()
 
   return (
@@ -37,7 +39,15 @@ export const App = () => {
         results={results}
         onLoadMore={() => search(true)}
         loading={loading}
+        hasMore={hasMore}
       />
+
+      {/*  prompt the user to click "Search" when no results have been fetched yet */}
+      {totalCount === null && (
+        <Typography variant="subtitle1" sx={{ textAlign: 'center' }}>
+          Click "Search" to get started
+        </Typography>
+      )}
 
       <Snackbar open={!!error} autoHideDuration={6000} onClose={clearError}>
         <Alert
