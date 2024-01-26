@@ -84,6 +84,7 @@ export const Filters = ({
           </Button>
           {loading && (
             <CircularProgress
+              aria-label="Loading"
               size={24}
               sx={{
                 position: 'absolute',
